@@ -1,0 +1,40 @@
+version: '3.8'
+
+services: 
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    volumes:
+      - ../..:/workspaces:cached
+
+    command: sleep infinity
+    network_mode: service:db
+
+  db:
+    image: mariadb:10.4
+    restart: unless-stopped
+    volumes:
+      - mariadb-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: root
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: db
+      PMA_USER: root             # Use your MariaDB username
+      PMA_PASSWORD: root         # Use your MariaDB password
+      PMA_ABSOLUTE_URI: 'http://localhost:9090/' # Optional: Sets the correct URI
+    ports:
+      - "9090:80"
+    depends_on:
+      - db
+
+volumes:
+  mariadb-data:
